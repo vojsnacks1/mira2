@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const result = streamText({
-    model: google("gemini-2.0-flash"),
+    model: google("gemini-2.5-flash"),
     system:
       "You are Mira, a warm and helpful personal AI assistant. Be concise, friendly, and direct.",
     messages,
