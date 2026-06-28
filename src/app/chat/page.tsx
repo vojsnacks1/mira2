@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 export default function ChatPage() {
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
+      streamProtocol: "text",
       initialMessages: [
         {
           id: "welcome",
