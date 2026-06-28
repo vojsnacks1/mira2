@@ -6,16 +6,15 @@ import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+const WELCOME: UIMessage = {
+  id: "welcome",
+  role: "assistant",
+  parts: [{ type: "text", text: "Hi, I'm Mira. What's on your mind?" }],
+  metadata: undefined,
+};
+
 export default function ChatPage() {
-  const { messages, sendMessage, status } = useChat({
-    messages: [
-      {
-        id: "welcome",
-        role: "assistant",
-        parts: [{ type: "text", text: "Hi, I'm Mira. What's on your mind?" }],
-      },
-    ] as UIMessage[],
-  });
+  const { messages, sendMessage, status } = useChat();
 
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -32,6 +31,8 @@ export default function ChatPage() {
     sendMessage({ text: trimmed });
     setInput("");
   }
+
+  const displayMessages = messages.length === 0 ? [WELCOME] : messages;
 
   return (
     <div className="flex flex-1 flex-col">
@@ -53,7 +54,7 @@ export default function ChatPage() {
 
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-          {messages.map((msg) => {
+          {displayMessages.map((msg) => {
             const text = msg.parts
               .filter((p) => p.type === "text")
               .map((p) => (p as { type: "text"; text: string }).text)
