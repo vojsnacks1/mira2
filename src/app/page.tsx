@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Home() {
   return (
@@ -18,18 +19,28 @@ export default function Home() {
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
-          <Link
-            href="/sign-up"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-medium text-background transition-opacity hover:opacity-90"
-          >
-            Create account
-          </Link>
-          <Link
-            href="/sign-in"
-            className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-white px-8 text-base font-medium text-foreground transition-opacity hover:opacity-90"
-          >
-            Sign in
-          </Link>
+          <SignedOut>
+            <Link
+              href="/sign-up"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-medium text-background transition-opacity hover:opacity-90"
+            >
+              Create account
+            </Link>
+            <Link
+              href="/sign-in"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-white px-8 text-base font-medium text-foreground transition-opacity hover:opacity-90"
+            >
+              Sign in
+            </Link>
+          </SignedOut>
+          <SignedIn>
+            <Link
+              href="/chat"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-medium text-background transition-opacity hover:opacity-90"
+            >
+              Go to chat
+            </Link>
+          </SignedIn>
         </div>
 
         <p className="mt-6 text-sm text-muted">
