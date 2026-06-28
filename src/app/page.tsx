@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
-export default function Home() {
+export default async function Home() {
+  const { userId } = await auth();
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6">
       <main className="flex w-full max-w-xl flex-col items-center text-center">
@@ -19,28 +20,29 @@ export default function Home() {
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
-          <SignedOut>
-            <Link
-              href="/sign-up"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-medium text-background transition-opacity hover:opacity-90"
-            >
-              Create account
-            </Link>
-            <Link
-              href="/sign-in"
-              className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-white px-8 text-base font-medium text-foreground transition-opacity hover:opacity-90"
-            >
-              Sign in
-            </Link>
-          </SignedOut>
-          <SignedIn>
+          {userId ? (
             <Link
               href="/chat"
               className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-medium text-background transition-opacity hover:opacity-90"
             >
               Go to chat
             </Link>
-          </SignedIn>
+          ) : (
+            <>
+              <Link
+                href="/sign-up"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-medium text-background transition-opacity hover:opacity-90"
+              >
+                Create account
+              </Link>
+              <Link
+                href="/sign-in"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-white px-8 text-base font-medium text-foreground transition-opacity hover:opacity-90"
+              >
+                Sign in
+              </Link>
+            </>
+          )}
         </div>
 
         <p className="mt-6 text-sm text-muted">
