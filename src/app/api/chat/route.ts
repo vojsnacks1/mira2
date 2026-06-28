@@ -1,9 +1,9 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import {
   streamText,
-  convertToModelMessages,
-  toUIMessageStream,
-  createUIMessageStreamResponse,
+  toTextStream,
+  createTextStreamResponse,
+  type ModelMessage,
 } from "ai";
 import { auth } from "@clerk/nextjs/server";
 
@@ -18,7 +18,19 @@ export async function POST(req: Request) {
   }
 
   const { messages } = await req.json();
-  const modelMessages = await convertToModelMessages(messages);
+
+  // Convert UIMessage[] (parts-based) to ModelMessage[] (content-based)
+  const modelMessages: ModelMessage[] = (messages as Array<{
+    role: string;
+    parts?: Array<{ type: string; text?: string }>;
+    content?: string;
+  }>)
+    .filter((m) => m.role === "user" || m.role === "assistant")
+    .map((m) => ({
+      role: m.role as "user" | "assistant",
+      content:
+        m.parts?.find((p) => p.type === "text")?.text ?? m.content ?? "",
+    }));
 
   const result = streamText({
     model: google("gemini-2.0-flash"),
@@ -27,7 +39,7 @@ export async function POST(req: Request) {
     messages: modelMessages,
   });
 
-  return createUIMessageStreamResponse({
-    stream: toUIMessageStream({ stream: result.fullStream }),
+  return createTextStreamResponse({
+    stream: toTextStream({ stream: result.fullStream }),
   });
 }

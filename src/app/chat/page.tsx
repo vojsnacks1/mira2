@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import type { UIMessage } from "ai";
+import { TextStreamChatTransport, type UIMessage } from "ai";
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -14,7 +14,9 @@ const WELCOME: UIMessage = {
 };
 
 export default function ChatPage() {
-  const { messages, sendMessage, status } = useChat();
+  const { messages, sendMessage, status, error } = useChat({
+    transport: new TextStreamChatTransport({ api: "/api/chat" }),
+  });
 
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -80,6 +82,13 @@ export default function ChatPage() {
               </div>
             );
           })}
+          {error && (
+            <div className="flex justify-start">
+              <div className="max-w-[80%] rounded-2xl rounded-bl-md border border-red-200 bg-red-50 px-4 py-2.5 text-sm leading-6 text-red-600">
+                Something went wrong: {error.message}
+              </div>
+            </div>
+          )}
           {isLoading && (
             <div className="flex justify-start">
               <div className="rounded-2xl rounded-bl-md border border-border bg-white px-4 py-2.5">
