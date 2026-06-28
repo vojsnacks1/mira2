@@ -1,29 +1,37 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import type { UIMessage } from "ai";
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ChatPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      streamProtocol: "text",
-      initialMessages: [
-        {
-          id: "welcome",
-          role: "assistant",
-          content:
-            "Hi, I'm Mira. What's on your mind?",
-        },
-      ],
-    });
+  const { messages, sendMessage, status } = useChat({
+    messages: [
+      {
+        id: "welcome",
+        role: "assistant",
+        parts: [{ type: "text", text: "Hi, I'm Mira. What's on your mind?" }],
+      },
+    ] as UIMessage[],
+  });
 
+  const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const isLoading = status === "submitted" || status === "streaming";
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
+    sendMessage({ text: trimmed });
+    setInput("");
+  }
 
   return (
     <div className="flex flex-1 flex-col">
@@ -45,24 +53,32 @@ export default function ChatPage() {
 
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={
-                msg.role === "user" ? "flex justify-end" : "flex justify-start"
-              }
-            >
+          {messages.map((msg) => {
+            const text = msg.parts
+              .filter((p) => p.type === "text")
+              .map((p) => (p as { type: "text"; text: string }).text)
+              .join("");
+            return (
               <div
+                key={msg.id}
                 className={
                   msg.role === "user"
-                    ? "max-w-[80%] rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-6 text-background"
-                    : "max-w-[80%] rounded-2xl rounded-bl-md border border-border bg-white px-4 py-2.5 text-sm leading-6 text-foreground"
+                    ? "flex justify-end"
+                    : "flex justify-start"
                 }
               >
-                {msg.content}
+                <div
+                  className={
+                    msg.role === "user"
+                      ? "max-w-[80%] rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-6 text-background"
+                      : "max-w-[80%] rounded-2xl rounded-bl-md border border-border bg-white px-4 py-2.5 text-sm leading-6 text-foreground"
+                  }
+                >
+                  {text}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {isLoading && (
             <div className="flex justify-start">
               <div className="rounded-2xl rounded-bl-md border border-border bg-white px-4 py-2.5">
@@ -82,7 +98,7 @@ export default function ChatPage() {
         <div className="mx-auto flex w-full max-w-2xl items-center gap-2">
           <input
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Message Mira…"
             disabled={isLoading}
             className="flex-1 rounded-full border border-border bg-white px-5 py-3 text-sm text-foreground outline-none placeholder:text-muted focus:border-accent disabled:opacity-60"
