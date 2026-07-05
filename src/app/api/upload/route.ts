@@ -1,13 +1,7 @@
-// Polyfill DOMMatrix for pdf-parse/pdfjs-dist which uses browser APIs in Node.js
-if (typeof globalThis.DOMMatrix === "undefined") {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (globalThis as any).DOMMatrix = class DOMMatrix {};
-}
-
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { generateEmbeddings, formatVectorForPg } from "@/lib/embeddings";
-import { PDFParse } from "pdf-parse";
+import { extractText, getDocumentProxy } from "unpdf";
 
 function chunkText(text: string, chunkSize: number, overlap: number): string[] {
   const chunks: string[] = [];
@@ -36,16 +30,15 @@ export async function POST(req: Request) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  if (file.name.endsWith(".pdf")) {
-    const parser = new PDFParse({ data: new Uint8Array(bytes) });
-    const result = await parser.getText();
-    text = result.text;
-    await parser.destroy();
+  if (file.name.toLowerCase().endsWith(".pdf")) {
+    const pdf = await getDocumentProxy(new Uint8Array(bytes));
+    const { text: extracted } = await extractText(pdf, { mergePages: true });
+    text = extracted as string;
   } else {
     text = buffer.toString("utf-8");
   }
 
-  if (!text.trim()) return new Response("Could not extract text", { status: 400 });
+  if (!text.trim()) return new Response("Could not extract text from file", { status: 400 });
 
   const chunks = chunkText(text, 500, 100);
   const embeddings = await generateEmbeddings(chunks);
