@@ -1,10 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
-import ChatUI from "./ChatUI";
 
-export default async function ChatPage() {
+export async function GET() {
   const { userId } = await auth();
-  if (!userId) return null;
+  if (!userId) return new Response("Unauthorized", { status: 401 });
 
   const conversations = await prisma.conversation.findMany({
     where: { userId },
@@ -12,5 +11,5 @@ export default async function ChatPage() {
     select: { id: true, title: true, updatedAt: true },
   });
 
-  return <ChatUI initialConversations={conversations} />;
+  return Response.json(conversations);
 }

@@ -90,6 +90,21 @@ Return the fact file only. No commentary.`;
   }
 }
 
+async function generateTitle(conversationId: string, firstMessage: string) {
+  try {
+    const { text } = await generateText({
+      model: google("gemini-2.5-flash"),
+      prompt: `Generate a short title (3-6 words, no quotes) for a conversation that starts with: "${firstMessage}"`,
+    });
+    await prisma.conversation.update({
+      where: { id: conversationId },
+      data: { title: text.trim() },
+    });
+  } catch (err) {
+    console.error("[title] generation failed:", err);
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
@@ -98,7 +113,18 @@ export async function POST(req: Request) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const { messages } = await req.json();
+    const { messages, conversationId } = await req.json();
+
+    if (!conversationId) {
+      return new Response("conversationId is required", { status: 400 });
+    }
+
+    // Ensure the conversation exists, creating it if necessary
+    await prisma.conversation.upsert({
+      where: { id: conversationId },
+      create: { id: conversationId, userId },
+      update: { updatedAt: new Date() },
+    });
 
     // Load what Marcus already knows about this user
     const memory = await prisma.userMemory.findUnique({ where: { userId } });
@@ -116,10 +142,16 @@ export async function POST(req: Request) {
     await prisma.message.create({
       data: {
         userId,
+        conversationId,
         role: "user",
         content: messages[messages.length - 1].content,
       },
     });
+
+    // Auto-generate a title from the first message of a new conversation
+    if (messages.length === 1) {
+      generateTitle(conversationId, messages[0].content).catch(() => {});
+    }
 
     const result = streamText({
       model: google("gemini-2.5-flash"),
@@ -130,7 +162,7 @@ export async function POST(req: Request) {
       onFinish: async ({ text }) => {
         // Save the assistant reply
         await prisma.message.create({
-          data: { userId, role: "assistant", content: text },
+          data: { userId, conversationId, role: "assistant", content: text },
         });
 
         // Await memory update — must complete before the serverless function exits
