@@ -16,7 +16,14 @@ async function updateMemory(
 ) {
   try {
     const prompt = existingMemory
-      ? `You are updating a personal memory file about a user based on their latest conversation.
+      ? `You maintain a personal fact file about a user. Update it based on their latest conversation.
+
+Rules:
+- Only store concrete, specific facts: name, age, job, location, hobbies, preferences, relationships, goals, health, etc.
+- Do NOT store observations about conversation behavior (e.g. "the user wants to share more", "the user is curious").
+- Do NOT store anything vague or meta. Only real facts about who they are and what they like/do/want.
+- If nothing new was learned, return the current memory unchanged.
+- Keep it concise — bullet points or short sentences.
 
 Current memory:
 ${existingMemory}
@@ -24,13 +31,19 @@ ${existingMemory}
 New conversation:
 ${newMessages.map((m) => `${m.role}: ${m.content}`).join("\n")}
 
-Update the memory to include any new relevant facts about the user (name, preferences, interests, work, life details, anything personal they've shared). Keep it concise — a few sentences to a short paragraph. Only include facts about the user, not general knowledge. If nothing new was learned, return the current memory unchanged.`
-      : `You are building a personal memory file about a user based on their conversation.
+Return the updated fact file only. No commentary.`
+      : `You are building a personal fact file about a user from their conversation.
+
+Rules:
+- Only store concrete, specific facts: name, age, job, location, hobbies, preferences, relationships, goals, health, etc.
+- Do NOT store observations about conversation behavior (e.g. "the user wants to share more", "the user is curious").
+- Do NOT store anything vague or meta. Only real facts about who they are and what they like/do/want.
+- If nothing personal was shared, return an empty string — nothing else.
 
 Conversation:
 ${newMessages.map((m) => `${m.role}: ${m.content}`).join("\n")}
 
-Extract any relevant facts about the user (name, preferences, interests, work, life details, anything personal they've shared). Write a concise summary — a few sentences. Only include facts about the user. If nothing personal was shared, return an empty string.`;
+Return the fact file only. No commentary.`;
 
     const { text } = await generateText({
       model: google("gemini-2.5-flash"),
