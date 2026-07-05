@@ -2,11 +2,12 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #fafafa;
-  --foreground: #18181b;
-  --muted: #71717a;
-  --border: #e4e4e7;
-  --accent: #18181b;
+  --background: #FAF6EF;
+  --foreground: #2C1810;
+  --muted: #8B7355;
+  --border: #D4B896;
+  --accent: #7C3F00;
+  --accent-foreground: #FAF6EF;
 }
 
 @theme inline {
@@ -17,6 +18,11 @@
   --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-cinzel: var(--font-cinzel);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-cinzel), Georgia, serif;
 }
 
 body {

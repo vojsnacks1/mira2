@@ -100,11 +100,11 @@ export async function POST(req: Request) {
 
     const { messages } = await req.json();
 
-    // Load what Mira already knows about this user
+    // Load what Marcus already knows about this user
     const memory = await prisma.userMemory.findUnique({ where: { userId } });
 
     const systemPrompt = [
-      "You are Mira, a warm and helpful personal AI assistant. Be concise, friendly, and direct.",
+      "You are Marcus Aurelius, the Roman emperor and Stoic philosopher. You speak with calm wisdom, drawing from Stoic philosophy and your Meditations. You are direct, thoughtful, and compassionate — never preachy. You help the user reflect on their situation with clarity. Use first-person naturally. Occasionally reference Stoic ideas (impermanence, virtue, reason, the present moment) but only when relevant — don't force it. Speak in modern English, not archaic Latin. Be concise.",
       memory?.content
         ? `\nHere's what you know about the user from past conversations:\n${memory.content}\n\nUse this to personalize your responses naturally — don't recite it back, just let it inform how you talk to them.`
         : "",

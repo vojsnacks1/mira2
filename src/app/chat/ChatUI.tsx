@@ -11,7 +11,7 @@ type Message = { id: string; role: "user" | "assistant"; text: string };
 const WELCOME: Message = {
   id: "welcome",
   role: "assistant",
-  text: "Hi, I'm Mira. What's on your mind?",
+  text: "Salve. I am Marcus Aurelius, philosopher and emperor of Rome. What troubles your mind today, citizen?",
 };
 
 interface ChatUIProps {
@@ -100,15 +100,16 @@ export default function ChatUI({ initialMessages }: ChatUIProps) {
     <div className="flex flex-1 flex-col">
       <header className="flex items-center justify-between border-b border-border px-6 py-4">
         <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-sm font-semibold text-background"
-          >
-            M
+          <Link href="/">
+            <img
+              src="/marcus-avatar.png"
+              alt="Marcus"
+              className="h-8 w-8 rounded-full object-cover"
+            />
           </Link>
           <div>
-            <p className="text-sm font-medium text-foreground">Mira</p>
-            <p className="text-xs text-muted">Your AI assistant</p>
+            <p className="text-sm font-medium text-foreground">Marcus</p>
+            <p className="text-xs text-muted">Stoic philosopher</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -134,8 +135,8 @@ export default function ChatUI({ initialMessages }: ChatUIProps) {
               <div
                 className={
                   msg.role === "user"
-                    ? "max-w-[80%] rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-6 text-background"
-                    : "max-w-[80%] rounded-2xl rounded-bl-md border border-border bg-white px-4 py-2.5 text-sm leading-6 text-foreground"
+                    ? "max-w-[80%] rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-6 text-accent-foreground"
+                    : "max-w-[80%] rounded-2xl rounded-bl-md border border-border bg-background px-4 py-2.5 text-sm leading-6 text-foreground"
                 }
               >
                 {msg.role === "assistant" ? (
@@ -177,7 +178,7 @@ export default function ChatUI({ initialMessages }: ChatUIProps) {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Message Mira…"
+            placeholder="Seek counsel from Marcus…"
             disabled={loading}
             className="flex-1 rounded-full border border-border bg-white px-5 py-3 text-sm text-foreground outline-none placeholder:text-muted focus:border-accent disabled:opacity-60"
           />
@@ -186,7 +187,7 @@ export default function ChatUI({ initialMessages }: ChatUIProps) {
             disabled={!input.trim() || loading}
             className="flex h-11 items-center justify-center rounded-full bg-accent px-6 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-40"
           >
-            Send
+            Ask
           </button>
         </div>
       </form>

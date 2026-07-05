@@ -45,15 +45,16 @@ export default function MemoryEditor({ initialContent }: MemoryEditorProps) {
     <div className="flex flex-1 flex-col">
       <header className="flex items-center justify-between border-b border-border px-6 py-4">
         <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-sm font-semibold text-background"
-          >
-            M
+          <Link href="/">
+            <img
+              src="/marcus-avatar.png"
+              alt="Marcus"
+              className="h-8 w-8 rounded-full object-cover"
+            />
           </Link>
           <div>
-            <p className="text-sm font-medium text-foreground">Mira</p>
-            <p className="text-xs text-muted">Your AI assistant</p>
+            <p className="text-sm font-medium text-foreground">Marcus</p>
+            <p className="text-xs text-muted">Stoic philosopher</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -70,10 +71,10 @@ export default function MemoryEditor({ initialContent }: MemoryEditorProps) {
       <div className="flex-1 overflow-y-auto px-4 py-10">
         <div className="mx-auto w-full max-w-2xl">
           <h1 className="text-xl font-semibold text-foreground mb-1">
-            What Mira remembers
+            What Marcus Remembers
           </h1>
           <p className="text-sm text-muted mb-8">
-            This is the personal context Mira uses to personalize your conversations.
+            Marcus carries knowledge of you across every conversation. Edit or clear it below.
           </p>
 
           <textarea
@@ -81,7 +82,7 @@ export default function MemoryEditor({ initialContent }: MemoryEditorProps) {
             onChange={(e) => setContent(e.target.value)}
             disabled={busy}
             rows={10}
-            placeholder="Nothing saved yet. Mira will automatically build up context as you chat."
+            placeholder="Nothing saved yet. Marcus will automatically build up context as you chat."
             className="w-full rounded-2xl border border-border bg-white px-5 py-4 text-sm text-foreground outline-none placeholder:text-muted focus:border-accent resize-none disabled:opacity-60 leading-6"
           />
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Cinzel } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,10 +13,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "Mira — Your AI Assistant",
+  title: "Marcus — Your Stoic Companion",
   description:
-    "A personal AI assistant that remembers you and grows with every conversation.",
+    "Wisdom from the philosopher-king. Reflect, grow, and face each day with clarity.",
 };
 
 // ClerkProvider needs no proxyUrl — the SDK auto-configures it for
@@ -29,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ClerkProvider>{children}</ClerkProvider>
