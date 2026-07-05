@@ -135,7 +135,7 @@ export default function ChatUI({ initialMessages }: ChatUIProps) {
               <div
                 className={
                   msg.role === "user"
-                    ? "max-w-[80%] rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-6 text-accent-foreground"
+                    ? "max-w-[80%] rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-6 text-white"
                     : "max-w-[80%] rounded-2xl rounded-bl-md border border-border bg-background px-4 py-2.5 text-sm leading-6 text-foreground"
                 }
               >
