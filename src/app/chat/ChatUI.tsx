@@ -3,6 +3,8 @@
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Message = { id: string; role: "user" | "assistant"; text: string };
 
@@ -128,12 +130,23 @@ export default function ChatUI({ initialMessages }: ChatUIProps) {
                     : "max-w-[80%] rounded-2xl rounded-bl-md border border-border bg-white px-4 py-2.5 text-sm leading-6 text-foreground"
                 }
               >
-                {msg.text || (
-                  <span className="flex gap-1">
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:0ms]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:150ms]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:300ms]" />
-                  </span>
+                {msg.role === "assistant" ? (
+                  msg.text ? (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      className="prose prose-sm max-w-none text-foreground prose-p:my-1 prose-headings:text-foreground prose-strong:text-foreground prose-code:rounded prose-code:bg-zinc-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-foreground prose-code:before:content-none prose-code:after:content-none prose-pre:bg-zinc-100 prose-pre:text-foreground prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-li:my-0.5"
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+                  ) : (
+                    <span className="flex gap-1">
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:0ms]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:150ms]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:300ms]" />
+                    </span>
+                  )
+                ) : (
+                  msg.text
                 )}
               </div>
             </div>
