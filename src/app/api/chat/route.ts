@@ -1,10 +1,36 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { streamText, generateText } from "ai";
+import { streamText, generateText, tool, stepCountIs } from "ai";
+import { z } from "zod";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+});
+
+const searchWeb = tool({
+  description:
+    "Search the web for current information, news, facts, or anything that requires up-to-date knowledge.",
+  inputSchema: z.object({
+    query: z.string().describe("The search query"),
+  }),
+  execute: async ({ query }) => {
+    const res = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: process.env.TAVILY_API_KEY,
+        query,
+        max_results: 5,
+        search_depth: "basic",
+      }),
+    });
+    if (!res.ok) throw new Error(`Tavily error: ${res.status}`);
+    const data = await res.json();
+    return (data.results as { title: string; url: string; content: string }[])
+      .map((r) => `**${r.title}**\n${r.url}\n${r.content}`)
+      .join("\n\n");
+  },
 });
 
 // After each reply, update the user's memory with any new facts.
@@ -99,6 +125,8 @@ export async function POST(req: Request) {
       model: google("gemini-2.5-flash"),
       system: systemPrompt,
       messages,
+      tools: { searchWeb },
+      stopWhen: stepCountIs(5),
       onFinish: async ({ text }) => {
         // Save the assistant reply
         await prisma.message.create({
