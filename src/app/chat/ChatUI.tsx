@@ -111,7 +111,15 @@ export default function ChatUI({ initialMessages }: ChatUIProps) {
             <p className="text-xs text-muted">Your AI assistant</p>
           </div>
         </div>
-        <UserButton />
+        <div className="flex items-center gap-4">
+          <Link
+            href="/memory"
+            className="text-xs text-muted hover:text-foreground transition-colors"
+          >
+            Memory
+          </Link>
+          <UserButton />
+        </div>
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 py-6">
