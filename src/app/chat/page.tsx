@@ -14,7 +14,7 @@ export default async function ChatPage() {
 
   return (
     <ChatUI
-      initialMessages={history.map((m) => ({
+      initialMessages={      history.map((m: { role: string; content: string }) => ({
         role: m.role,
         content: m.content,
       }))}
