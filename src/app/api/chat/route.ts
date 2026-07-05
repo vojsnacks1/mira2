@@ -3,6 +3,7 @@ import { streamText, generateText, tool, stepCountIs } from "ai";
 import { z } from "zod";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { searchRelevantChunks } from "@/lib/search";
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
