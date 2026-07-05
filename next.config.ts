@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
-// No manual proxy config needed — Clerk SDK auto-proxies through /__clerk
-// on *.vercel.app when using production keys (pk_live_).
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  // pdf-parse uses browser DOM APIs (DOMMatrix) at module load time.
+  // Marking it as external tells Next.js to load it as a native Node module
+  // instead of bundling it, which avoids the crash on Vercel serverless.
+  serverExternalPackages: ["pdf-parse", "pdfjs-dist"],
+};
 
 export default nextConfig;

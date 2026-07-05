@@ -1,3 +1,9 @@
+// Polyfill DOMMatrix for pdf-parse/pdfjs-dist which uses browser APIs in Node.js
+if (typeof globalThis.DOMMatrix === "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).DOMMatrix = class DOMMatrix {};
+}
+
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { generateEmbeddings, formatVectorForPg } from "@/lib/embeddings";
