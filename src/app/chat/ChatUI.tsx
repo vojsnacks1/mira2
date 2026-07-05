@@ -45,7 +45,9 @@ export default function ChatUI({ initialMessages }: ChatUIProps) {
       text: trimmed,
     };
 
-    const history = [...messages.filter((m) => m.id !== "welcome"), userMsg];
+    // Only send the last 10 messages — long-term context is handled by the memory system
+    const allHistory = [...messages.filter((m) => m.id !== "welcome"), userMsg];
+    const history = allHistory.slice(-10);
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
