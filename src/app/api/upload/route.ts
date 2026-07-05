@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { generateEmbeddings, formatVectorForPg } from "@/lib/embeddings";
-import pdf from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 
 function chunkText(text: string, chunkSize: number, overlap: number): string[] {
   const chunks: string[] = [];
@@ -31,8 +31,10 @@ export async function POST(req: Request) {
   const buffer = Buffer.from(bytes);
 
   if (file.name.endsWith(".pdf")) {
-    const parsed = await pdf(buffer);
-    text = parsed.text;
+    const parser = new PDFParse({ data: new Uint8Array(bytes) });
+    const result = await parser.getText();
+    text = result.text;
+    await parser.destroy();
   } else {
     text = buffer.toString("utf-8");
   }
