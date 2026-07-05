@@ -39,3 +39,17 @@ model UserMemory {
   content   String
   updatedAt DateTime @updatedAt
 }
+
+model DocumentChunk {
+  id             String   @id @default(cuid())
+  userId         String
+  conversationId String?
+  filename       String
+  chunkIndex     Int
+  content        String
+  embedding      Unsupported("vector(768)")?
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@index([conversationId])
+}
