@@ -130,11 +130,26 @@ export async function POST(req: Request) {
     // Load what Marcus already knows about this user
     const memory = await prisma.userMemory.findUnique({ where: { userId } });
 
+    // Search for relevant document chunks based on the latest message
+    const relevantChunks = await searchRelevantChunks(
+      messages[messages.length - 1].content,
+      userId,
+      conversationId ?? null,
+    );
+
+    const docsContext =
+      relevantChunks.length > 0
+        ? `\n\nRelevant context from uploaded documents:\n${relevantChunks
+            .map((c) => `[From ${c.filename}]: ${c.content}`)
+            .join("\n\n")}`
+        : "";
+
     const systemPrompt = [
       "You are Marcus Aurelius, the Roman emperor and Stoic philosopher. You speak with calm wisdom, drawing from Stoic philosophy and your Meditations. You are direct, thoughtful, and compassionate — never preachy. You help the user reflect on their situation with clarity. Use first-person naturally. Occasionally reference Stoic ideas (impermanence, virtue, reason, the present moment) but only when relevant — don't force it. Speak in modern English, not archaic Latin. Be concise.",
       memory?.content
         ? `\nHere's what you know about the user from past conversations:\n${memory.content}\n\nUse this to personalize your responses naturally — don't recite it back, just let it inform how you talk to them.`
         : "",
+      docsContext,
     ]
       .join("")
       .trim();

@@ -33,7 +33,15 @@ export default function ChatUI({ initialConversations }: ChatUIProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Clear uploaded files when switching conversations
+  useEffect(() => {
+    setUploadedFiles([]);
+  }, [activeConversationId]);
 
   // Load messages whenever the active conversation changes
   useEffect(() => {
@@ -72,6 +80,34 @@ export default function ChatUI({ initialConversations }: ChatUIProps) {
     setMessages([WELCOME]);
     setInput("");
     setError(null);
+    setUploadedFiles([]);
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (activeConversationId) {
+        formData.append("conversationId", activeConversationId);
+      }
+
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(body || "Upload failed");
+      }
+      const data = await res.json();
+      setUploadedFiles((prev) => [...prev, data.filename]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   }
 
   async function refreshConversations() {
@@ -309,21 +345,63 @@ export default function ChatUI({ initialConversations }: ChatUIProps) {
           onSubmit={handleSubmit}
           className="border-t border-border px-4 py-4"
         >
-          <div className="mx-auto flex w-full max-w-2xl items-center gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Seek counsel from Marcus…"
-              disabled={loading}
-              className="flex-1 rounded-full border border-border bg-white px-5 py-3 text-sm text-foreground outline-none placeholder:text-muted focus:border-accent disabled:opacity-60"
-            />
-            <button
-              type="submit"
-              disabled={!input.trim() || loading}
-              className="flex h-11 items-center justify-center rounded-full bg-accent px-6 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-40"
-            >
-              Ask
-            </button>
+          <div className="mx-auto w-full max-w-2xl">
+            {uploadedFiles.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {uploadedFiles.map((name, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-[#F5EFE4] px-2.5 py-1 text-xs text-foreground"
+                  >
+                    <svg className="h-3 w-3 shrink-0 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                    {name}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.txt"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading || loading}
+                title="Upload a document"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-white text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
+              >
+                {uploading ? (
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  </svg>
+                ) : (
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                )}
+              </button>
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Seek counsel from Marcus…"
+                disabled={loading}
+                className="flex-1 rounded-full border border-border bg-white px-5 py-3 text-sm text-foreground outline-none placeholder:text-muted focus:border-accent disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || loading}
+                className="flex h-11 items-center justify-center rounded-full bg-accent px-6 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+              >
+                Ask
+              </button>
+            </div>
           </div>
         </form>
       </div>
