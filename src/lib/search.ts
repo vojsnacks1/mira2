@@ -7,6 +7,10 @@ export async function searchRelevantChunks(
   conversationId: string | null,
   topK = 5,
 ): Promise<{ content: string; filename: string; similarity: number }[]> {
+  // Skip expensive embedding call if user has no documents at all
+  const docCount = await prisma.documentChunk.count({ where: { userId } });
+  if (docCount === 0) return [];
+
   const embedding = await generateEmbedding(query);
   const embeddingStr = formatVectorForPg(embedding);
 

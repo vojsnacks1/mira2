@@ -130,12 +130,12 @@ export async function POST(req: Request) {
     // Load what Marcus already knows about this user
     const memory = await prisma.userMemory.findUnique({ where: { userId } });
 
-    // Search for relevant document chunks based on the latest message
+    // Search for relevant document chunks (only if user has uploads)
     const relevantChunks = await searchRelevantChunks(
       messages[messages.length - 1].content,
       userId,
       conversationId ?? null,
-    );
+    ).catch(() => []);
 
     const docsContext =
       relevantChunks.length > 0
