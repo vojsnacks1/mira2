@@ -92,8 +92,8 @@ export async function POST(req: Request) {
           data: { userId, role: "assistant", content: text },
         });
 
-        // Update memory in the background with this conversation turn
-        updateMemory(userId, memory?.content ?? null, [
+        // Await memory update — must complete before the serverless function exits
+        await updateMemory(userId, memory?.content ?? null, [
           ...messages,
           { role: "assistant", content: text },
         ]);
