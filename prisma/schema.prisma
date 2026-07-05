@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// One row per chat message.
+// userId comes from Clerk — it uniquely identifies the logged-in user.
+// role is either "user" (human) or "assistant" (Mira).
+// createdAt lets us load messages back in the right order.
+model Message {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
