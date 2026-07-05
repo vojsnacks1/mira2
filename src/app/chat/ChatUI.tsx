@@ -132,12 +132,11 @@ export default function ChatUI({ initialMessages }: ChatUIProps) {
               >
                 {msg.role === "assistant" ? (
                   msg.text ? (
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      className="prose prose-sm max-w-none text-foreground prose-p:my-1 prose-headings:text-foreground prose-strong:text-foreground prose-code:rounded prose-code:bg-zinc-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-foreground prose-code:before:content-none prose-code:after:content-none prose-pre:bg-zinc-100 prose-pre:text-foreground prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-li:my-0.5"
-                    >
-                      {msg.text}
-                    </ReactMarkdown>
+                    <div className="prose prose-sm max-w-none text-foreground prose-p:my-1 prose-headings:text-foreground prose-strong:text-foreground prose-code:rounded prose-code:bg-zinc-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-foreground prose-code:before:content-none prose-code:after:content-none prose-pre:bg-zinc-100 prose-pre:text-foreground prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-li:my-0.5">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
                   ) : (
                     <span className="flex gap-1">
                       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:0ms]" />
